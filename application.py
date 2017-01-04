@@ -354,25 +354,45 @@ def sendMatchMsg(subject_text, msg_text, http):
 zipcodes21mi = [94601,94606,94613,94602,94619,94610,94621,94502,94617,94501,94603,94604,94614,94620,94622,94623,94624,94649,94659,94660,94661,94666,94605,94612,94615,94611,94516,94609,94618,94577,94607,94662,94608,94546,94705,94563,94570,94575,94578,94704,94703,94579,94720,94702,94701,94712,94556,94709,94580,94710,94708,94130,94706,94707,94158,94124,94107,94105,94549,94111,94541,94104,94595,94540,94543,94557,94108,94530,94103,94102,94133,94119,94120,94125,94126,94137,94139,94140,94141,94142,94143,94144,94145,94146,94147,94151,94159,94160,94161,94163,94164,94172,94177,94188,94110,94134,94109,94545,94583,94115,94123,94526,94114,94804,94117,94597,94131,94596,94005,94805,94112,94802,94808,94542,94850,94544,94803,94118,94507,94083,94127,94014,94129,94807,94128,94552,94080,94553,94016,94523,94820,94528,94122,94116,94598,94401,94132,94121,94587,94801,94017,94806,94920,94564,94011,94404,94966,94015,94497,94030,94518,94547,94066,94582,94010,94506,94065,94403,94568,94522,94524,94527,94529,94555,94402,94572,94965,94588,94044,94520,94569,94974,94002,94525,94063,94964,94519,94925,94536,94521,94070,94976,94560,94942,94064,94537,94939,94517,94977,94901,94941]
 
 
-def isInZipcodeRange(clientzip):
+def isInZipcodeRange(client_subject):
 
 #  try:
     ##### string which is passed to test again zipcode array
     #sloc = "MANTECA CA 95336"
-    if len(clientzip) > 0:
-      sloc = clientzip
-      print("Sloc : ", sloc)
+    if len(client_subject) > 0:
+      sloc = client_subject
+      print("\n\nSloc :", sloc, ":")
 
-      [int(sloc) for sloc in sloc.split() if sloc.isdigit()]
-      
-      sl = int(sloc)
+#      address = "Moab, UT 84532"
 
-      print (":",sl,":")
+      for sloc in sloc.split(","):
+          print (">", sloc, "<")
+          postal_code = re.search(r'.*(\d{5}(\-\d{4})?)$', sloc)
+          #postal_code = re.search(r'\d{5}$', str(sloc))
+          if postal_code != None:
+            print ("\nPostal code FOUND", postal_code.group(1))
+            target_zip = postal_code.group(1)
+          else:
+            print ("no postal code match", sloc)
 
+      print("----------------")
+
+      if target_zip in zipcodes21mi:
+          print("Target ZIPCODE MATCH")
+      else:
+          print ("NO Target Zipcode Match")
+
+  #      [int(sloc) for sloc in sloc.split() if sloc.isdigit()]      
+  #      sl = int(sloc)
+
+    #  print (":",postal_code,":")
+
+'''
       if sl in zipcodes21mi: 
           print ("yes within 21min" , sl)
       else: 
           print ("no out of range, quit here" , sl)
+'''
 
  # except errors:
  #   print('An error occurred in isInZipcodeRange: %s' % error)
@@ -414,8 +434,8 @@ def main():
 
         # print(" ------ ------ ------ ------ \n")
 
-    queryList = ListMessagesWithLabels(service, 'me', ['Label_1'], 'is:unread newer_than:1d')
-    print ('Field Nation Labeled Unread in last hr: ', len(queryList), "\n")
+    queryList = ListMessagesWithLabels(service, 'me', ['Label_1'], 'is:unread newer_than:6h')
+    print ('Field Nation Labeled Unread in last 6 hr: ', len(queryList), "\n")
     print(" ------ ------ ------ ------ \n")
 
     if len(queryList) > 0:
