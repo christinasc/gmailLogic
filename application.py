@@ -356,24 +356,22 @@ zipcodes21mi = [94601,94606,94613,94602,94619,94610,94621,94502,94617,94501,9460
 
 def isInZipcodeRange(client_subject):
 
+
 #  try:
     ##### string which is passed to test again zipcode array
     #sloc = "MANTECA CA 95336"
+
+    target_zip ="00000"
+
     if len(client_subject) > 0:
       sloc = client_subject
       print("\n\nSloc :", sloc, ":")
 
-#      address = "Moab, UT 84532"
-
-      for sloc in sloc.split(","):
-          print (">", sloc, "<")
-          postal_code = re.search(r'.*(\d{5}(\-\d{4})?)$', sloc)
-          #postal_code = re.search(r'\d{5}$', str(sloc))
-          if postal_code != None:
-            print ("\nPostal code FOUND", postal_code.group(1))
-            target_zip = postal_code.group(1)
-          else:
-            print ("no postal code match", sloc)
+      for sloc in sloc.split():
+          if re.match(r'[0-9]{5}', sloc):
+              zip = re.match(r'[0-9]{5}', sloc)
+              target_zip = str(zip.group(0))
+              print("EXTRACTED ZIP:", target_zip)
 
       print("----------------")
 
@@ -382,17 +380,6 @@ def isInZipcodeRange(client_subject):
       else:
           print ("NO Target Zipcode Match")
 
-  #      [int(sloc) for sloc in sloc.split() if sloc.isdigit()]      
-  #      sl = int(sloc)
-
-    #  print (":",postal_code,":")
-
-'''
-      if sl in zipcodes21mi: 
-          print ("yes within 21min" , sl)
-      else: 
-          print ("no out of range, quit here" , sl)
-'''
 
  # except errors:
  #   print('An error occurred in isInZipcodeRange: %s' % error)
@@ -434,8 +421,8 @@ def main():
 
         # print(" ------ ------ ------ ------ \n")
 
-    queryList = ListMessagesWithLabels(service, 'me', ['Label_1'], 'is:unread newer_than:6h')
-    print ('Field Nation Labeled Unread in last 6 hr: ', len(queryList), "\n")
+    queryList = ListMessagesWithLabels(service, 'me', ['Label_1'], 'is:unread newer_than:1h')
+    print ('Field Nation Labeled Unread in last 1 hr: ', len(queryList), "\n")
     print(" ------ ------ ------ ------ \n")
 
     if len(queryList) > 0:
