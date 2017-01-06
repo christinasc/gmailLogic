@@ -12,6 +12,7 @@ from apiclient import errors
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+from collections import Counter
 # ...
 
 import base64
@@ -317,7 +318,7 @@ def isPreferredClient(message_text):
   for pname in pclient:
     comboRegex = comboRegex + "(" + pname + ")|"
 
-  print("regex combination:", comboRegex)
+#  print("regex combination:", comboRegex)
 
   if len(pclient) > 0:
     combined = "(" + ")|(".join(pclient) + ")"
@@ -353,32 +354,29 @@ def sendMatchMsg(subject_text, msg_text, http):
 # home base is fruitvale at 94601
 zipcodes21mi = [94601,94606,94613,94602,94619,94610,94621,94502,94617,94501,94603,94604,94614,94620,94622,94623,94624,94649,94659,94660,94661,94666,94605,94612,94615,94611,94516,94609,94618,94577,94607,94662,94608,94546,94705,94563,94570,94575,94578,94704,94703,94579,94720,94702,94701,94712,94556,94709,94580,94710,94708,94130,94706,94707,94158,94124,94107,94105,94549,94111,94541,94104,94595,94540,94543,94557,94108,94530,94103,94102,94133,94119,94120,94125,94126,94137,94139,94140,94141,94142,94143,94144,94145,94146,94147,94151,94159,94160,94161,94163,94164,94172,94177,94188,94110,94134,94109,94545,94583,94115,94123,94526,94114,94804,94117,94597,94131,94596,94005,94805,94112,94802,94808,94542,94850,94544,94803,94118,94507,94083,94127,94014,94129,94807,94128,94552,94080,94553,94016,94523,94820,94528,94122,94116,94598,94401,94132,94121,94587,94801,94017,94806,94920,94564,94011,94404,94966,94015,94497,94030,94518,94547,94066,94582,94010,94506,94065,94403,94568,94522,94524,94527,94529,94555,94402,94572,94965,94588,94044,94520,94569,94974,94002,94525,94063,94964,94519,94925,94536,94521,94070,94976,94560,94942,94064,94537,94939,94517,94977,94901,94941]
 
-
+#### FIELD NATION EMAILS ONLY ####
 def isInZipcodeRange(client_subject):
-
-
 #  try:
     ##### string which is passed to test again zipcode array
     #sloc = "MANTECA CA 95336"
-
-    target_zip ="00000"
+    zipcodeInRange = False
 
     if len(client_subject) > 0:
       sloc = client_subject
-      print("\n\nSloc :", sloc, ":")
+      #print("\n\nSloc :", sloc, ":")
 
       for sloc in sloc.split():
           if re.match(r'[0-9]{5}', sloc):
               zip = re.match(r'[0-9]{5}', sloc)
               target_zip = str(zip.group(0))
               print("EXTRACTED ZIP:", target_zip)
+              for each_zip in zipcodes21mi:
+                if int(each_zip) == int(target_zip):
+                  zipcodeInRange = True
 
       print("----------------")
 
-      if target_zip in zipcodes21mi:
-          print("Target ZIPCODE MATCH")
-      else:
-          print ("NO Target Zipcode Match")
+      return zipcodeInRange
 
 
  # except errors:
@@ -429,7 +427,8 @@ def main():
       for q in queryList:
         #msg =  GetMessage(service, 'me', q['id'])
         #print("historyid ", msg['historyId'])
-      
+        print("------ ------ POTENTIAL CLIENT ------ ------ ")
+
         mime_msg = GetMimeMessage(service, 'me', q['id'])
         date = mime_msg['date']
         frm = mime_msg['from']
@@ -440,10 +439,14 @@ def main():
         print("MIME Subject: ", subj)
         # print ("MIME history ID: %s" % message['historyId'])
 
-        # is zipcode in range
-        isInZipcodeRange(subj)
+        # is zipcode in range, is TRUE, then parse message body and
+        # test for preferred client
+        if isInZipcodeRange(subj): 
+          print ("TARGET ZIPCODE MATCH")
+        else: 
+          print("NO TARGET ZIPCODE MATCH")
 
-        ## parse message body
+        ## parse message body - IS PREFERRED CLIENT?
         for part in mime_msg.walk():
           if part.get_content_type() == 'text/plain':
             rawtext = part.get_payload()
@@ -460,13 +463,6 @@ def main():
 
 
 
-          # firstEntry = queryList[0] # 0th entry is the latest entry
-          # print('QUERY ID for 0th entry', firstEntry, '\n')
-          # GetMimeMessage(service, 'me', firstEntry['id'])
-
-          # msg =  GetMessage(service, 'me', firstEntry['id'])
-          # print ("FN Last message history ID: %s" % msg['historyId'])
-#    print(" ------ ------ ------ ------ \n")
 
           ## TODO LIST
           ## retrieve old history id from file
@@ -475,11 +471,7 @@ def main():
               ## if pass, then forward on as a text message
           ## store this history id as the current history id and overwrite history id in file.
 
-    
 
-# ----------------------------------
-#      print(firstEntry['id'],'\n') 
-#      messageList = ListMessagesWithLabels(service, 'me', ['STARRED'])
 
 
 if __name__ == '__main__':
