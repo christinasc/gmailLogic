@@ -384,12 +384,16 @@ def isInZipcodeRangeFN(client_subject):
 
 
 def handleFieldNationEmails(service, http, queryList):
-    pushText = False
+    latesthistoryId = 0
 
     if len(queryList) > 0:
       for q in queryList:
-        #msg =  GetMessage(service, 'me', q['id'])
-        #print("historyid ", msg['historyId'])
+        msg =  GetMessage(service, 'me', q['id'])
+        currentHistoryId = msg['historyId']
+        print("historyid ",currentHistoryId)
+        if currentHistoryId > latesthistoryId:
+          latesthistoryId = currentHistoryId
+
         print("------ ------ POTENTIAL CLIENT ------ ------ ")
 
         mime_msg = GetMimeMessage(service, 'me', q['id'])
@@ -400,7 +404,7 @@ def handleFieldNationEmails(service, http, queryList):
         print("MIME Date: ", date)
         print("MIME From: ", frm)
         print("MIME Subject: ", subj)
-        # print ("MIME history ID: %s" % message['historyId'])
+        print ("message ID" , mime_msg['historyId'], q['id'])
 
         # is zipcode in range, is TRUE, then parse message body and
         # test for preferred client
@@ -415,63 +419,48 @@ def handleFieldNationEmails(service, http, queryList):
             rawtext = part.get_payload()
             if isPreferredClient(rawtext):
               sendMatchMsg(mime_msg['subject'], "", http)
-              pushText = True
           else:
             print("other multipart-mime - skipping")
 
         print ("\n")
     else: 
       print("Query Result list is Zero. Wait for next cycle")
-    return pushText
-
+    print("latest histoy id: " , latesthistoryId)
 
 def main():
     """Shows basic usage of the Gmail API.
-
     Creates a Gmail API service object and outputs a list of label names
     of the user's Gmail account.
     """
-    # if not labels:
-    #     print('No labels found.')
-    # else:
         # Label_1 : FN-NewWork
         # Label_3 : OF-NewWork
         # Label_2 : AssignedToYou
-#        ListLabels(service,'me')
 
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
+
     print(" ------ ------ ------ ------ \n")
-    queryList = ListMessagesWithLabels(service, 'me', ['Label_1'], 'is:unread newer_than:1h')
+    queryList = ListMessagesWithLabels(service, 'me', ['Label_1'], 'is:unread newer_than:1d')
     print ('Field Nation Labeled Unread in last 1 hr: ', len(queryList), "\n")
-    print(" ------ ------ ------ ------ \n")
     handleFieldNationEmails(service, http, queryList) 
     print(" ------ ------ ------ ------ \n")
 
 
         # OFqueryList = ListMessagesWithLabels(service, 'me', ['Label_3'], 'is:unread newer_than:6h')
         # print ('OnForce Labeled  Unread in last hr :', len(OFqueryList))
-
-        # if len(OFqueryList) > 0:
-        #   firstEntry = OFqueryList[0] # 0th entry is the latest entry
-        #   GetMimeMessage(service, 'me', firstEntry['id'])
-        # else:
-        #   print("Query Result list is Zero")
-
         # print(" ------ ------ ------ ------ \n")
 
-   
+
+if __name__ == '__main__':
+    main()
+
+
+  
           ## TODO LIST
           ## retrieve old history id from file
           ## check each message in query List only if history id > previous history ID
               ## parse each message and push through filter criteria
               ## if pass, then forward on as a text message
           ## store this history id as the current history id and overwrite history id in file.
-
-
-
-
-if __name__ == '__main__':
-    main()
 
