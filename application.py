@@ -394,6 +394,7 @@ def handleFieldNationEmails(service, http, queryList):
         if currentHistoryId > latesthistoryId:
           latesthistoryId = currentHistoryId
 
+
         print("------ ------ POTENTIAL CLIENT ------ ------ ")
 
         mime_msg = GetMimeMessage(service, 'me', q['id'])
@@ -425,7 +426,7 @@ def handleFieldNationEmails(service, http, queryList):
         print ("\n")
     else: 
       print("Query Result list is Zero. Wait for next cycle")
-    print("latest histoy id: " , latesthistoryId)
+    return latesthistoryId
 
 def main():
     """Shows basic usage of the Gmail API.
@@ -443,7 +444,10 @@ def main():
     print(" ------ ------ ------ ------ \n")
     queryList = ListMessagesWithLabels(service, 'me', ['Label_1'], 'is:unread newer_than:1d')
     print ('Field Nation Labeled Unread in last 1 hr: ', len(queryList), "\n")
-    handleFieldNationEmails(service, http, queryList) 
+    latestHistoryId = handleFieldNationEmails(service, http, queryList) 
+    print("latest histoy id: " , latestHistoryId)
+   
+
     print(" ------ ------ ------ ------ \n")
 
 
