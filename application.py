@@ -54,20 +54,6 @@ def GetMessage(service, user_id, msg_id):
   try:
     message = service.users().messages().get(userId=user_id, id=msg_id).execute()
 
-#    print ('Message snippet: %s' % message['snippet'])
-#     print ("history ID: %s" % message['historyId'])
-#     print ("Internal Date: %s" % message['internalDate'], "\n")
-# #    print ("Message Payload: %s" % message['payload'])
-
-#     payload = message['payload']
-#     print(payload['body'])
-#     hdrs = payload['headers']
-#     for n in hdrs:
-#         if str(n['name']) == 'Subject':
-#             print ("Subject: ", n['value'], "\n")
-#         if str(n['name']) == 'Date':
-#             print ("Date: ", n['value'], "\n")
-
     return message
   except errors.HttpError, error:
     print ('An error occurred: %s' % error)
@@ -88,8 +74,6 @@ def GetMimeMessage(service, user_id, msg_id):
   try:
     message = service.users().messages().get(userId=user_id, id=msg_id,
                                              format='raw').execute()
-
-    #print ('MIME Message snippet: %s' % message['snippet'])
 
     msg_str = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
     mime_msg = email.message_from_string(msg_str)
@@ -445,7 +429,7 @@ def main():
     queryList = ListMessagesWithLabels(service, 'me', ['Label_1'], 'is:unread newer_than:1d')
     print ('Field Nation Labeled Unread in last 1 hr: ', len(queryList), "\n")
     latestHistoryId = handleFieldNationEmails(service, http, queryList) 
-    print("latest histoy id: " , latestHistoryId)
+    print("latest history id: " , latestHistoryId)
    
 
     print(" ------ ------ ------ ------ \n")
